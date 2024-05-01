@@ -1,4 +1,3 @@
-// const router = require("express").Router();
 const { User, Thought } = require('../models');
 
 module.exports = {
@@ -72,7 +71,7 @@ module.exports = {
   },
   async addFriend(req, res) {
     // ADD a friend to a user by their friendId
-    console.log('You are adding a friend');
+    console.log('You are adding a friend to a user');
     console.log(req.body);
 
     try{

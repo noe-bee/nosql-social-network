@@ -1,4 +1,5 @@
 const { User, Thought } = require('../models');
+const reactionSchema = require("../models/Reaction");
 
 module.exports = {
   // GET all thoughts
@@ -56,6 +57,77 @@ module.exports = {
 
     } catch (err) {
       res.status(500).json({ error: "internal service error" });
+    }
+  },
+  async updateThought(req, res) {
+    // UPDATE a thought by its Id
+    try{
+      const thought = await Thought.findOneAndUpdate(
+        {_id: req.params.thoughtId},
+        //set to update Thought's specific field of thoughtText only
+        { $set: { thoughtText: req.body.thoughtText } },
+        {runValidators: true, new: true}
+      );
+
+      if(!thought) {
+        return res.status(400).json({ message: 'No thought with this Id!'})
+      }
+
+      res.json(thought);
+    }catch(err){
+      res.status(500).json({ error: 'internal service error' })
+    }
+  },
+  async deleteThought(req, res) {
+    // DELETE a thought by its Id
+    try{
+      const thought = await Thought.findOneAndDelete({_id: req.params.thoughtId})
+
+      if(!thought) {
+        return res.status(400).json({ message: 'No thought with this Id!'})
+      }
+      res.json({ message: 'Thought successfully deleted'})
+
+    }catch(err){
+      res.status(500).json({ error: 'internal service error' })
+    }
+  },
+  async addReaction(req, res) {
+    // ADD a reaction to a THOUGHT by with the reaction content
+    console.log('You are adding a reaction to a thought');
+    console.log(req.body);
+    try{
+      const thought = await Thought.findOneAndUpdate(
+        { _id: req.params.thoughtId },
+        { $addToSet: { reactions: req.body } },
+        { new: true }
+      );
+
+      if(!thought) {
+        return res.status(400).json({ message: 'No thought with this Id!'})
+      }
+      res.json(thought);
+    }catch(err){
+      res.status(500).json({ error: 'internal service error' })
+    }
+  },
+  async deleteReaction(req, res) {
+    //DELETE a reaction by their reactionId
+    try{
+      const thought = await Thought.findOneAndUpdate(
+        { _id: req.params.thoughtId},
+        //pulling to remove an element from the reactions array
+        { $pull: {reactions: {reactionId: req.params.reactionId } } },
+        {runValidators: true, new: true}
+      );
+
+      if(!thought) {
+        return res.status(400).json({ message: 'No thought with this Id!'})
+      }
+
+      res.json(thought);
+    }catch(err){
+      res.status(500).json({ error: 'internal service error' })
     }
   }
 };
